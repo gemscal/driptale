@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from driptale.health.endpoints import router as health_router
 
 app = FastAPI()
