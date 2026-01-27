@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 
 from driptale.api import router
 from driptale.rate_limiter import setup_rate_limiting
