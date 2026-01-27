@@ -9,10 +9,3 @@ router = APIRouter(prefix="/v1")
 router.include_router(health_router)
 # /profile
 router.include_router(profile_router)
-
-# Intentionally unformatted code to test CI
-def test_function(  x,y,z  ):
-    if x==1 and y==2:
-        return z+1
-    else:
-        return z*2
