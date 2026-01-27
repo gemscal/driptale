@@ -23,5 +23,23 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen
       
+      - name: Install ruff
+        run: uv pip install ruff
+      
+      - name: Run ruff linting
+        run: uv run ruff check .
+      
+      - name: Check code formatting
+        run: uv run ruff format --check .
+      
+      - name: Validate Python imports
+        run: |
+          uv run python -c "from driptale.main import app; print('✓ All imports successful')"
+      
+      - name: Build Docker image
+        run: |
+          docker build -t driptale:test .
+          echo "✓ Docker image built successfully"
+      
       - name: Build check
-        run: echo "Build successful"
+        run: echo "✓ All checks passed"
