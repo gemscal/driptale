@@ -25,9 +25,12 @@ globs: ["driptale/**"]
 .vscode                             # Editor settings and workspace configuration
 driptale                            # Driptale backend source code
 ├── <feature_name>/                 # Feature-based API route modules (e.g. auth, users, payments)
+├── api.py                          # Main API router aggregating feature routers with version prefix
 ├── config.py                       # Application configuration using pydantic_settings
 ├── constant.py                     # Global constants (e.g. ENVIRONMENT, Firebase collections)
+├── firebase.py                     # Firebase Admin SDK initialization and authentication token verification
 ├── main.py                         # Backend application entrypoint; initializes FastAPI app
+├── rate_limiter.py                 # Rate limiting middleware configuration and exception handling
 scripts                             # Project automation and utility shell scripts
 tests                               # Test suites
 .python-version                     # Python version specification
