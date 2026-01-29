@@ -10,76 +10,38 @@ on:
 
 jobs:
   build:
-    # Runner: Use GitHub's Ubuntu latest runner
-    # Helpful: Provides a clean, consistent environment for all checks
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout repository code
-      # What it does: Downloads your code to the CI runner
-      # Helpful: Required to run any checks on your code
       - uses: actions/checkout@v4
       
-      # Step 2: Set up Python 3.12
-      # What it does: Installs Python 3.12 in the CI environment
-      # Helpful: Ensures we're testing with the same Python version as production
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       
-      # Step 3: Install uv package manager
-      # What it does: Installs uv (fast Python package manager) used by your project
-      # Helpful: Required to install your project dependencies
       - name: Install uv
         uses: astral-sh/setup-uv@v4
       
-      # Step 4: Install project dependencies
-      # What it does: Installs all dependencies from pyproject.toml using locked versions (uv.lock)
-      # Helpful: Validates that dependencies can be installed and are compatible
-      #          Catches dependency conflicts before Railway deployment
       - name: Install dependencies
         run: uv sync --frozen
       
-      # Step 5: Install ruff linter/formatter
-      # What it does: Installs ruff tool for code quality checks
-      # Helpful: Required for the linting and formatting checks below
       - name: Install ruff
         run: uv pip install ruff
       
-      # Step 6: Run ruff linting checks
-      # What it does: Scans code for quality issues (unused imports, undefined variables, etc.)
-      # Helpful: Catches code quality problems early, prevents bugs from reaching production
-      #          Enforces coding standards across the team
       - name: Run ruff linting
         run: uv run ruff check .
       
-      # Step 7: Check code formatting
-      # What it does: Verifies code is properly formatted (doesn't auto-format, just checks)
-      # Helpful: Ensures consistent code style, catches unformatted code before merge
-      #          Prevents style inconsistencies even if someone forgets to format locally
       - name: Check code formatting
         run: uv run ruff format --check .
       
-      # Step 8: Validate Python imports
-      # What it does: Attempts to import your main app module to verify all imports work
-      # Helpful: Catches import errors, circular dependencies, and syntax issues early
-      #          Ensures the app can actually start before Railway tries to deploy it
       - name: Validate Python imports
         run: |
           uv run python -c "from driptale.main import app; print('✓ All imports successful')"
       
-      # Step 9: Build Docker image
-      # What it does: Builds the Docker image using your Dockerfile (same as Railway will)
-      # Helpful: Validates Dockerfile works correctly before Railway builds it
-      #          Catches Docker build issues early (missing files, broken commands, etc.)
-      #          Saves Railway build minutes if Dockerfile is broken
       - name: Build Docker image
         run: |
           docker build -t driptale:test .
           echo "✓ Docker image built successfully"
       
-      # Step 10: Final success message
-      # What it does: Prints a success message if all previous steps passed
-      # Helpful: Clear indication that all checks completed successfully
       - name: Build check
         run: echo "✓ All checks passed"
