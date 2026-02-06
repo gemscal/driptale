@@ -13,21 +13,25 @@ def get_firebase_credentials():
     """
     Get firebase credentials based on the environment.
     """
+    if settings.ENVIRONMENT == ENVIRONMENT.CI:
+        return None
     if settings.ENVIRONMENT == ENVIRONMENT.DEVELOPMENT:
         return credentials.Certificate(settings.FIREBASE_CRED)
-    elif settings.ENVIRONMENT == ENVIRONMENT.PRODUCTION:
+    if settings.ENVIRONMENT == ENVIRONMENT.PRODUCTION:
         creds_json = os.getenv("FIREBASE_CRED")
         if not creds_json:
             raise ValueError("FIREBASE CREDENTIAL environment variable is not set")
         creds_dict = json.loads(creds_json)
         return credentials.Certificate(creds_dict)
-    else:
-        raise ValueError(f"Invalid environment: {settings.ENVIRONMENT}")
+    raise ValueError(f"Invalid environment: {settings.ENVIRONMENT}")
 
 
 cred = get_firebase_credentials()
-initialize_app(cred)
-db = firestore.client()
+if cred is not None:
+    initialize_app(cred)
+    db = firestore.client()
+else:
+    db = None
 
 security = HTTPBearer(auto_error=False)
 
