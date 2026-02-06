@@ -35,6 +35,10 @@ jobs:
         run: uv run ruff format --check .
       
       - name: Validate Python imports
+        env:
+          ENVIRONMENT: ci
+          FIREBASE_CRED: "{}"
+          FIREBASE_STORAGE_BUCKET: ci-bucket
         run: |
           uv run python -c "from driptale.main import app; print('✓ All imports successful')"
       
