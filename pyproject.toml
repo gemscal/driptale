@@ -9,3 +9,8 @@ dependencies = [
     "firebase-admin>=7.1.0",
     "slowapi>=0.1.9",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.0",
+]
