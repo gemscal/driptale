@@ -7,9 +7,4 @@ app = FastAPI()
 setup_rate_limiting(app)
 
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
-
-
 app.include_router(router)

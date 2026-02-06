@@ -1,10 +1,9 @@
 import json
 import os
 
-import firebase_admin
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from firebase_admin import auth, credentials, firestore
+from firebase_admin import auth, credentials, firestore, initialize_app
 
 from driptale.config import settings
 from driptale.constant import ENVIRONMENT
@@ -18,6 +17,8 @@ def get_firebase_credentials():
         return credentials.Certificate(settings.FIREBASE_CRED)
     elif settings.ENVIRONMENT == ENVIRONMENT.PRODUCTION:
         creds_json = os.getenv("FIREBASE_CRED")
+        if not creds_json:
+            raise ValueError("FIREBASE CREDENTIAL environment variable is not set")
         creds_dict = json.loads(creds_json)
         return credentials.Certificate(creds_dict)
     else:
@@ -25,29 +26,29 @@ def get_firebase_credentials():
 
 
 cred = get_firebase_credentials()
-firebase_admin.initialize_app(cred)
+initialize_app(cred)
 db = firestore.client()
 
 security = HTTPBearer(auto_error=False)
 
 
 def verify_firebase_token(
-    credentials: HTTPAuthorizationCredentials | None = Depends(security),
-):
+    token_credentials: HTTPAuthorizationCredentials | None = Depends(security),
+) -> str:
     """
-    Verify Firebase ID token and return user information.
+    Verify Firebase ID token and return the authenticated user's uid.
     """
-    if not credentials or not credentials.credentials:
+    if not token_credentials or not token_credentials.credentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing authentication token",
         )
 
-    token = credentials.credentials
+    token = token_credentials.credentials
 
     try:
         decoded_token = auth.verify_id_token(token)
-        return decoded_token
+        return decoded_token["uid"]
 
     except auth.ExpiredIdTokenError:
         raise HTTPException(
